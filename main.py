@@ -1,6 +1,9 @@
 ﻿from manim import *
 
-class Test(Scene):
+class HelloWorld(Scene):
     def construct(self):
         # ANIMATIONS
-        pass
+        t = Text("hello").shift(UP)
+        t2 = Text("hello").shift(DOWN)
+        self.play(Write(t), Write(t2))
+        self.wait(3)

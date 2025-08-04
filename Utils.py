@@ -7,10 +7,10 @@ class Point:
         self.y: float = y
 
 class Wave:
-    def __init__(self, axes: Axes):
+    def __init__(self, end: float):
         self.amplitude: float = 1
         self.step: float = 0.01
-        self.end: float = (axes.x_range[1] - axes.x_range[0])
+        self.end: float = end
         self.set_up: bool = False
         self.points: list = []
     
@@ -42,18 +42,50 @@ class Wave:
         firstWave = waves[0]
 
         i = 0
-        for point in firstWave:
+        for point in firstWave.points:
             x: float = point.x
             combinedY: float = 0
 
             for wave in waves:
-                combinedY += wave.points[i]
+                combinedY += wave.points[i].y
 
             points.append(Point(x, combinedY))
 
             i += 1
 
-        newWave = Wave()
+        newWave = Wave(0)
         newWave.Set_Up_From_Points(points)
 
         return newWave
+    
+    def Get_Circular_Points(self, cycles_per_second: float) -> list:
+        length = len(self.points)
+
+        newPoints: list = []
+        for i in range(length):
+            point: Point = self.points[i]
+
+            angle = TAU * cycles_per_second * point.x
+
+            x: float = cos(angle) * point.y
+            y: float = sin(angle) * point.y
+
+            newPoints.append(Point(x, y))
+
+        return newPoints
+    
+    def Get_Center_of_Mass(self, cycles_per_second: float) -> Point:
+        points: list = self.Get_Circular_Points(cycles_per_second)
+        length: int = len(self.points)
+
+        totalX: float = 0
+        totalY: float = 0
+
+        for point in points:
+            totalX += point.x
+            totalY += point.y
+
+        x: float = totalX / length
+        y: float = totalY / length
+
+        return Point(x, y)

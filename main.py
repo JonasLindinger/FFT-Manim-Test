@@ -4,13 +4,13 @@ import numpy as np
 
 def Create_Wave_From_Frequency(axes: Axes, frequency: float, xOffset: float) -> Wave:
     # Create a 3 Beats / Second Wave
-    wave: Wave = Wave(axes)
+    wave: Wave = Wave((axes.x_range[1] - axes.x_range[0]))
     wave.Set_Up_From_Frequency(frequency, xOffset)
     return wave
 
-def Get_Lines_From_Wave(axes: Axes, wave: Wave) -> VGroup:
+def Get_Lines_From_Points(axes: Axes, points: list, yOffset: float) -> VGroup:
     # Convert to scene points
-    coords = [axes.coords_to_point(p.x, p.y) for p in wave.points]
+    coords = [axes.coords_to_point(p.x, p.y + yOffset) for p in points]
 
     # Connect points with lines
     lines = VGroup()
@@ -18,6 +18,9 @@ def Get_Lines_From_Wave(axes: Axes, wave: Wave) -> VGroup:
         lines.add(Line(coords[i], coords[i + 1], color=YELLOW))
 
     return lines
+
+def Get_Coors_Of_Point(axes: Axes, point: Point, offset: Point):
+    return axes.coords_to_point(point.x + offset.x, point.y + offset.y)
 
 class FFT(Scene):
     def construct(self):
@@ -36,9 +39,58 @@ class FFT(Scene):
 
         self.add(axes, labels)
 
-        wave3Hz = Get_Lines_From_Wave(axes, Create_Wave_From_Frequency(axes, 3, -0.25))
+        wave2Hz = Create_Wave_From_Frequency(axes, 2, 0.125)
+        wave3Hz = Create_Wave_From_Frequency(axes, 3, -0.25)
 
-        self.play(Create(wave3Hz))
+        waves: list = []
+        waves.append(wave2Hz)
+        waves.append(wave3Hz)
+
+        wave: Wave = Wave.Combine(waves)
+
+        waveLines = Get_Lines_From_Points(axes, wave3Hz.points, 1)
+
+        self.play(Create(waveLines))
+
+        self.wait(1)
+
+        newAxis = Axes(
+            x_range=[-2, 2], 
+            y_range=[-2, 2],
+            x_length=4,
+            y_length=4
+        )
+
+        newWave3Hz: Wave = Create_Wave_From_Frequency(newAxis, 1, -0.25)
+
+        cycles_per_second = ValueTracker(0.5)
+
+        animatedWave = always_redraw(
+            lambda: 
+            Get_Lines_From_Points(
+                newAxis,
+                newWave3Hz.Get_Circular_Points(cycles_per_second.get_value()),
+                1
+            ).move_to([-5, -2, 0])
+        )
+
+        animatedCenterOfMass = always_redraw(
+            lambda:
+            Dot(Get_Coors_Of_Point(newAxis, newWave3Hz.Get_Center_of_Mass(cycles_per_second.get_value()), Point(-5, -2)), color=RED).scale(0.5)
+        )
+        
+
+        baseWave = waveLines.copy()
+        self.add(baseWave)
+        self.play(ReplacementTransform(waveLines, animatedWave))
+        self.add(animatedCenterOfMass)
+
+        self.wait(1)
+
+        # Animate cycles_per_second from 0.5 to 3 over a the run_time
+        self.play(cycles_per_second.animate.set_value(3.0), run_time=6)
+
+        self.wait(1)
 
         
         

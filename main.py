@@ -146,6 +146,36 @@ class FFT(Scene):
 
         self.play(Write(frequencyGraphAxes), run_time=.5)
 
-        graph = Get_Lines_From_Points(frequencyGraphAxes, wave.Get_Frequency_Graph_Points(frequencyGraphAxes.x_range[0], frequencyGraphAxes.x_range[1], 1), 0)
+        graph = Get_Lines_From_Points(frequencyGraphAxes, wave.Get_Frequency_Graph_Points(frequencyGraphAxes.x_range[0], frequencyGraphAxes.x_range[1], yOffset), 0)
+        graph.set_color(RED)
 
-        self.play(Write(graph), run_time=5)
+        self.play(Write(graph), cycles_per_second.animate.set_value(6), run_time=5)
+
+        # --------------------------------------------
+        # Shift the Wave down
+        # --------------------------------------------
+
+        yOffset = 0
+        shiftedOriginGraph = always_redraw(
+            lambda:
+            Get_Lines_From_Points(circularWaveAxes, wave.Get_Circular_Points(cycles_per_second.get_value(), yOffset), 0)
+        )
+
+        shiftedCenterOfMass = always_redraw(
+            lambda:
+            Dot(Get_Coors_Of_Point(circularWaveAxes, wave.Get_Center_of_Mass(cycles_per_second.get_value(), yOffset), Point(0, 0)), radius=0.08, color = RED, fill_opacity = 1)
+        )
+
+        self.play(ReplacementTransform(originGraph, shiftedOriginGraph), ReplacementTransform(centerOfMass, shiftedCenterOfMass), run_time=2)
+        self.play(Unwrite(graph), run_time=.5)
+        self.play(cycles_per_second.animate.set_value(.1), run_time=5)
+
+        shiftedGraph = Get_Lines_From_Points(frequencyGraphAxes, wave.Get_Frequency_Graph_Points(frequencyGraphAxes.x_range[0], frequencyGraphAxes.x_range[1], yOffset), 0)
+        shiftedGraph.set_color(RED)
+
+        self.play(cycles_per_second.animate.set_value(6), Write(shiftedGraph), run_time=5)
+
+        # --------------------------------------------
+        # Todo
+        # --------------------------------------------
+        

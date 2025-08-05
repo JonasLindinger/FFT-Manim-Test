@@ -83,7 +83,13 @@ class FFT(Scene):
             Get_Lines_From_Points(circularWaveAxes, wave.Get_Circular_Points(cycles_per_second.get_value(), yOffset), 0)
         )
 
-        self.play(ReplacementTransform(wrappingGraph, originGraph), run_time=2)
+        cycles_per_second_text_position = Point(-4.5, 1.3)
+        cycles_per_second_text = always_redraw(
+            lambda:
+            Text(str(round(cycles_per_second.get_value(), 2)) + " Cycles per second", font_size=16).move_to([cycles_per_second_text_position.x, cycles_per_second_text_position.y, 0])
+        )
+
+        self.play(ReplacementTransform(wrappingGraph, originGraph), Write(cycles_per_second_text), run_time=2)
 
         # --------------------------------------------
         # Add Center of mass to Graph and do fancy animation
@@ -151,9 +157,12 @@ class FFT(Scene):
 
         self.play(Write(graph), cycles_per_second.animate.set_value(6), run_time=5)
 
+        self.wait(6)
+
         # --------------------------------------------
         # Shift the Wave down
         # --------------------------------------------
+        self.play(cycles_per_second.animate.set_value(.1), run_time=2)
 
         yOffset = 0
         shiftedOriginGraph = always_redraw(
@@ -166,7 +175,7 @@ class FFT(Scene):
             Dot(Get_Coors_Of_Point(circularWaveAxes, wave.Get_Center_of_Mass(cycles_per_second.get_value(), yOffset), Point(0, 0)), radius=0.08, color = RED, fill_opacity = 1)
         )
 
-        self.play(ReplacementTransform(originGraph, shiftedOriginGraph), ReplacementTransform(centerOfMass, shiftedCenterOfMass), run_time=2)
+        self.play(ReplacementTransform(originGraph, shiftedOriginGraph), ReplacementTransform(centerOfMass, shiftedCenterOfMass), run_time=3)
         self.play(Unwrite(graph), run_time=.5)
         self.play(cycles_per_second.animate.set_value(.1), run_time=5)
 

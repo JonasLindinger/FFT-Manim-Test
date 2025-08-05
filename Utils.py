@@ -105,7 +105,7 @@ class Wave:
             angle = TAU * cycles_per_second * point.x
 
             x: float = cos(angle) * (point.y + yOffset)
-            y: float = sin(angle) * (point.y + yOffset)
+            y: float = sin(-angle) * (point.y + yOffset)
 
             newPoints.append(Point(x, y))
 

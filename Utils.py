@@ -22,9 +22,10 @@ class CenterOfMassPointData:
         self.point: Point = point
 
 class FrequencyGraphPointData:
-    def __init__(self, xMin: float, xMax: float, points: list):
-        self.xMin = xMin
-        self.xMax = xMax
+    def __init__(self, xMin: float, xMax: float, yOffset: float, points: list):
+        self.xMin: float = xMin
+        self.xMax: float = xMax
+        self.yOffset: float = yOffset
         self.points = points
 
 class Wave:
@@ -142,7 +143,7 @@ class Wave:
     def Get_Frequency_Graph_Points(self, xMin: float, xMax: float, yOffset: float):
         # Check cach
         for pointData in self.frequencyGraphPointData:
-            if pointData.xMin == xMin and pointData.xMax == xMax:
+            if pointData.xMin == xMin and pointData.xMax == xMax and pointData.yOffset == yOffset:
                 return pointData.points
         
         center: Point = Point(0, 0)
@@ -159,6 +160,6 @@ class Wave:
             x += self.step
 
         # Save in Cach
-        self.frequencyGraphPointData.append(FrequencyGraphPointData(xMin, xMax, points))
+        self.frequencyGraphPointData.append(FrequencyGraphPointData(xMin, xMax, yOffset, points))
 
         return points
